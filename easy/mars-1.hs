@@ -68,6 +68,5 @@ incPower p
 control :: Speed -> Power -> Command
 control    vSpeed   power
     | vSpeed <= (-40) = Command 0 (incPower power)
-    | vSpeed >  (-20) = Command 0 (decPower power)
+    | vSpeed >= (-39) = Command 0 (decPower power)
     | otherwise       = Command 0 power
-
