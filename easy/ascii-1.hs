@@ -1,9 +1,15 @@
 import System.IO
 import Control.Monad
+import Data.List.Split (chunksOf)
 import qualified Data.Map.Strict as Map
 
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ?"
-alphabetEmptyMap = Map.fromList . map (\c -> (c,"")) $ alphabet
+
+type PixelBank = [[String]]
+type CharMap = Map.Map Char [String]
+
+charMap :: String -> PixelBank -> CharMap
+charMap abc pixelBank = Map.fromList $ zip abc pixelBank
 
 main :: IO ()
 main = do
@@ -13,16 +19,17 @@ main = do
     let width = read input_line :: Int
     input_line <- getLine
     let height = read input_line :: Int
-    t <- getLine
+    text <- getLine
 
-    replicateM height $ do
-        row <- getLine
-        --chunksOf width row
-        return ()
+    rows <- replicateM height $ do
+      row <- getLine
+      let splitRow = chunksOf width row
+      return splitRow
 
     -- hPutStrLn stderr "Debug messages..."
 
     -- Write answer to stdout
-    putStrLn "answer"
+    putStrLn "anwer"
 
-
+display :: CharMap -> String -> String
+--display chmap text = unlines . blabla
