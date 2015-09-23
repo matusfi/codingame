@@ -29,35 +29,32 @@ main = do
       let splitRow = chunksOf width row
       return splitRow
 
-    -- errorCheck width height pixelBank
+    errorCheck width height pixelBank
     let chmap = charMap alphabet pixelBank
 
-
-    -- hPutStrLn stderr "Debug messages..."
-
     -- Write answer to stdout
-    putStrLn $ display chmap height text
+    putStrLn $ display chmap text
 
 errorCheck :: Int -> Int -> PixelString -> IO ()
 errorCheck width height pixelBank
-  | length pixelBank /= height = error "Pixel Bank height doesn't match display height"
-  | any (\s -> length s /= width) (concat pixelBank) = error "Pixel Bank character width is not consistent with the expected width"
+  | length (pixelBank!!0) /= height =
+      hPutStrLn stderr (concat ["Pixel Bank height ", (show $ length (pixelBank!!0)), ", doesn't match display height ", (show height)])
+  | any (\s -> length s /= width) (concat pixelBank) =
+      hPutStrLn stderr "Pixel Bank character width is not consistent with the expected width"
   | otherwise = return ()
 
-display :: PixelCharMap -> Int -> String -> String
-display chmap height text = unlines . joinPixelLines (length text) . replaceWithPixelChars $ text
-  where
-    choosePixelChar :: Char -> PixelChar
-    choosePixelChar = (Map.!) chmap -- (Map.!) is unsafe Map key accessor
+display :: PixelCharMap -> String -> String
+display chmap text = joinPixelChars . transpose $ replaceWithPixelChars text
+  where defChar = (Map.!) chmap '?'
 
-    replaceWithPixelChars :: String -> PixelString
-    replaceWithPixelChars = map choosePixelChar
+        choosePixelChar :: Char -> PixelChar
+        choosePixelChar char = Map.findWithDefault defChar char chmap
 
-    lineNumbers = [0..height-1]
+        replaceWithPixelChars :: String -> PixelString
+        replaceWithPixelChars = map choosePixelChar
 
-    joinPixelLines :: Int -> PixelString -> [String]
-    joinPixelLines len ps = map concat ps
-
+        joinPixelChars :: PixelString -> String
+        joinPixelChars = unlines . map concat
 
 testMap :: PixelCharMap
 testMap = Map.fromList [('A', [" A  ",
@@ -65,4 +62,7 @@ testMap = Map.fromList [('A', [" A  ",
                                "A A "]),
                         ('H', ["H H ",
                                "HHH ",
-                               "H H "])]
+                               "H H "]),
+                        ('?', ["??? ",
+                               " ?? ",
+                               " ?  "])]
